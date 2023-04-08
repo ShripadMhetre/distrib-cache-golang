@@ -15,18 +15,6 @@ func New() *CacheImpl {
 	}
 }
 
-func (c *CacheImpl) Delete(key []byte) error {
-	delete(c.dataStore, string(key))
-
-	return nil
-}
-
-func (c *CacheImpl) Has(key []byte) bool {
-	_, ok := c.dataStore[string(key)]
-
-	return ok
-}
-
 func (c *CacheImpl) Get(key []byte) ([]byte, error) {
 	keyStr := string(key)
 	val, ok := c.dataStore[keyStr]
@@ -46,6 +34,18 @@ func (c *CacheImpl) Set(key, value []byte, ttl time.Duration) error {
 			delete(c.dataStore, string(key))
 		}()
 	}
+
+	return nil
+}
+
+func (c *CacheImpl) Exists(key []byte) bool {
+	_, ok := c.dataStore[string(key)]
+
+	return ok
+}
+
+func (c *CacheImpl) Delete(key []byte) error {
+	delete(c.dataStore, string(key))
 
 	return nil
 }

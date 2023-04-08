@@ -10,11 +10,12 @@ import (
 )
 
 func main() {
-	// var cache cache.Cache
-
 	cache := cache.New()
 
+	// SET key1 val1 EX 15
 	cache.Set([]byte("key1"), []byte("val1"), time.Duration(15*time.Second))
+
+	// GET key1
 	val, err := cache.Get([]byte("key1"))
 
 	if err != nil {
@@ -22,9 +23,14 @@ func main() {
 	}
 
 	fmt.Printf("key: key1, value: %s", string(val))
-	var wg sync.WaitGroup
 
-	fmt.Println("\nDoes cache has key: key1? ", cache.Has([]byte("key1")))
+	// EXISTS key1
+	isExist := cache.Exists([]byte("key1"))
+
+	fmt.Println("\nDoes cache has key: key1 =>", isExist)
+
+	// Testing the key expiration logic
+	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
