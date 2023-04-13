@@ -4,7 +4,7 @@ import "time"
 
 type Cache interface {
 	Set([]byte, []byte, time.Duration) error
-	Get([]byte) (string, error)
+	Get([]byte) ([]byte, error)
 	Delete([]byte) error
 	Exists([]byte) bool
 }

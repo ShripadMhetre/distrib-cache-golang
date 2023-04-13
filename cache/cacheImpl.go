@@ -2,10 +2,12 @@ package cache
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
 type CacheImpl struct {
+	lock      sync.RWMutex
 	dataStore map[string][]byte
 }
 
@@ -16,6 +18,9 @@ func New() *CacheImpl {
 }
 
 func (c *CacheImpl) Get(key []byte) ([]byte, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	keyStr := string(key)
 	val, ok := c.dataStore[keyStr]
 	if !ok {
@@ -26,6 +31,9 @@ func (c *CacheImpl) Get(key []byte) ([]byte, error) {
 }
 
 func (c *CacheImpl) Set(key, value []byte, ttl time.Duration) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	c.dataStore[string(key)] = value
 
 	if ttl > 0 {
@@ -39,12 +47,18 @@ func (c *CacheImpl) Set(key, value []byte, ttl time.Duration) error {
 }
 
 func (c *CacheImpl) Exists(key []byte) bool {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	_, ok := c.dataStore[string(key)]
 
 	return ok
 }
 
 func (c *CacheImpl) Delete(key []byte) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	delete(c.dataStore, string(key))
 
 	return nil
