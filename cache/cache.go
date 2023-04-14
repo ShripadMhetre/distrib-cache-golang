@@ -6,5 +6,5 @@ type Cache interface {
 	Set([]byte, []byte, time.Duration) error
 	Get([]byte) ([]byte, error)
 	Delete([]byte) error
-	Exists([]byte) bool
+	Exists([]byte) (bool, error)
 }

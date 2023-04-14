@@ -17,6 +17,8 @@ func ParseCommand(r io.Reader) (any, error) {
 		return parseSetCommand(r), nil
 	case CmdGet:
 		return parseGetCommand(r), nil
+	case CmdExists:
+		return parseExistsCommand(r), nil
 	case CmdJoin:
 		return &CommandJoin{}, nil
 	default:
@@ -46,6 +48,17 @@ func parseSetCommand(r io.Reader) *CommandSet {
 
 func parseGetCommand(r io.Reader) *CommandGet {
 	cmd := &CommandGet{}
+
+	var keyLen int32
+	binary.Read(r, binary.LittleEndian, &keyLen)
+	cmd.Key = make([]byte, keyLen)
+	binary.Read(r, binary.LittleEndian, &cmd.Key)
+
+	return cmd
+}
+
+func parseExistsCommand(r io.Reader) *CommandExists {
+	cmd := &CommandExists{}
 
 	var keyLen int32
 	binary.Read(r, binary.LittleEndian, &keyLen)

@@ -76,6 +76,31 @@ func (c *Client) Set(ctx context.Context, key []byte, value []byte, ttl int) err
 	return nil
 }
 
+func (c *Client) Exists(ctx context.Context, key []byte) (bool, error) {
+	cmd := &service.CommandExists{
+		Key: key,
+	}
+
+	_, err := c.conn.Write(cmd.Bytes())
+	if err != nil {
+		return false, err
+	}
+
+	resp, err := service.ParseExistsResponse(c.conn)
+	if err != nil {
+		return false, err
+	}
+	if resp.Status != service.StatusOK {
+		return false, fmt.Errorf("server responded with non OK status [%s]", resp.Status)
+	}
+
+	if resp.Status == service.StatusKeyNotFound {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (c *Client) Close() error {
 	return c.conn.Close()
 }

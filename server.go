@@ -96,13 +96,15 @@ func (s *Server) handleConn(conn net.Conn) {
 }
 
 func (s *Server) handleCommand(conn net.Conn, cmd any) {
-	switch v := cmd.(type) {
+	switch cmdType := cmd.(type) {
 	case *service.CommandSet:
-		s.handleSetCommand(conn, v)
+		s.handleSetCommand(conn, cmdType)
 	case *service.CommandGet:
-		s.handleGetCommand(conn, v)
+		s.handleGetCommand(conn, cmdType)
+	case *service.CommandExists:
+		s.handleExistsCommand(conn, cmdType)
 	case *service.CommandJoin:
-		s.handleJoinCommand(conn, v)
+		s.handleJoinCommand(conn, cmdType)
 	}
 }
 
@@ -153,6 +155,28 @@ func (s *Server) handleSetCommand(conn net.Conn, cmd *service.CommandSet) error 
 
 	resp.Status = service.StatusOK
 	_, err := conn.Write(resp.Bytes())
+
+	return err
+}
+
+func (s *Server) handleExistsCommand(conn net.Conn, cmd *service.CommandExists) error {
+	log.Printf("Exists %s", cmd.Key)
+
+	resp := service.ResponseExists{}
+	ok, err := s.cache.Exists(cmd.Key)
+
+	if err != nil {
+		resp.Status = service.StatusError
+		_, err := conn.Write(resp.Bytes())
+		return err
+	}
+
+	if !ok {
+		resp.Status = service.StatusKeyNotFound
+	} else {
+		resp.Status = service.StatusOK
+	}
+	_, err = conn.Write(resp.Bytes())
 
 	return err
 }

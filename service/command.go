@@ -34,6 +34,7 @@ const (
 	CmdNonce Command = iota
 	CmdSet
 	CmdGet
+	CmdExists
 	CmdDel
 	CmdJoin
 )
@@ -65,6 +66,17 @@ func (r *ResponseGet) Bytes() []byte {
 	return buf.Bytes()
 }
 
+type ResponseExists struct {
+	Status ResponseStatus
+}
+
+func (r *ResponseExists) Bytes() []byte {
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.LittleEndian, r.Status)
+
+	return buf.Bytes()
+}
+
 func ParseSetResponse(r io.Reader) (*ResponseSet, error) {
 	resp := &ResponseSet{}
 	err := binary.Read(r, binary.LittleEndian, &resp.Status)
@@ -82,6 +94,12 @@ func ParseGetResponse(r io.Reader) (*ResponseGet, error) {
 	binary.Read(r, binary.LittleEndian, &resp.Value)
 
 	return resp, nil
+}
+
+func ParseExistsResponse(r io.Reader) (*ResponseExists, error) {
+	resp := &ResponseExists{}
+	err := binary.Read(r, binary.LittleEndian, &resp.Status)
+	return resp, err
 }
 
 type CommandJoin struct{}
@@ -116,6 +134,21 @@ type CommandGet struct {
 func (c *CommandGet) Bytes() []byte {
 	buf := new(bytes.Buffer)
 	binary.Write(buf, binary.LittleEndian, CmdGet)
+
+	keyLen := int32(len(c.Key))
+	binary.Write(buf, binary.LittleEndian, keyLen)
+	binary.Write(buf, binary.LittleEndian, c.Key)
+
+	return buf.Bytes()
+}
+
+type CommandExists struct {
+	Key []byte
+}
+
+func (c *CommandExists) Bytes() []byte {
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.LittleEndian, CmdExists)
 
 	keyLen := int32(len(c.Key))
 	binary.Write(buf, binary.LittleEndian, keyLen)
