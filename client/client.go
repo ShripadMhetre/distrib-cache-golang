@@ -90,12 +90,13 @@ func (c *Client) Exists(ctx context.Context, key []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if resp.Status != service.StatusOK {
-		return false, fmt.Errorf("server responded with non OK status [%s]", resp.Status)
-	}
 
 	if resp.Status == service.StatusKeyNotFound {
 		return false, nil
+	}
+
+	if resp.Status != service.StatusOK {
+		return false, fmt.Errorf("server responded with non OK status [%s]", resp.Status)
 	}
 
 	return true, nil

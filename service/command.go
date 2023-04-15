@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
 )
 
 type ResponseStatus byte
@@ -75,31 +74,6 @@ func (r *ResponseExists) Bytes() []byte {
 	binary.Write(buf, binary.LittleEndian, r.Status)
 
 	return buf.Bytes()
-}
-
-func ParseSetResponse(r io.Reader) (*ResponseSet, error) {
-	resp := &ResponseSet{}
-	err := binary.Read(r, binary.LittleEndian, &resp.Status)
-	return resp, err
-}
-
-func ParseGetResponse(r io.Reader) (*ResponseGet, error) {
-	resp := &ResponseGet{}
-	binary.Read(r, binary.LittleEndian, &resp.Status)
-
-	var valueLen int32
-	binary.Read(r, binary.LittleEndian, &valueLen)
-
-	resp.Value = make([]byte, valueLen)
-	binary.Read(r, binary.LittleEndian, &resp.Value)
-
-	return resp, nil
-}
-
-func ParseExistsResponse(r io.Reader) (*ResponseExists, error) {
-	resp := &ResponseExists{}
-	err := binary.Read(r, binary.LittleEndian, &resp.Status)
-	return resp, err
 }
 
 type CommandJoin struct{}

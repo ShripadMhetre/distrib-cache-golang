@@ -6,6 +6,8 @@ import (
 	"io"
 )
 
+// Command Parsers:
+
 func ParseCommand(r io.Reader) (any, error) {
 	var cmd Command
 	if err := binary.Read(r, binary.LittleEndian, &cmd); err != nil {
@@ -66,4 +68,31 @@ func parseExistsCommand(r io.Reader) *CommandExists {
 	binary.Read(r, binary.LittleEndian, &cmd.Key)
 
 	return cmd
+}
+
+// Response Parsers:
+
+func ParseSetResponse(r io.Reader) (*ResponseSet, error) {
+	resp := &ResponseSet{}
+	err := binary.Read(r, binary.LittleEndian, &resp.Status)
+	return resp, err
+}
+
+func ParseGetResponse(r io.Reader) (*ResponseGet, error) {
+	resp := &ResponseGet{}
+	binary.Read(r, binary.LittleEndian, &resp.Status)
+
+	var valueLen int32
+	binary.Read(r, binary.LittleEndian, &valueLen)
+
+	resp.Value = make([]byte, valueLen)
+	binary.Read(r, binary.LittleEndian, &resp.Value)
+
+	return resp, nil
+}
+
+func ParseExistsResponse(r io.Reader) (*ResponseExists, error) {
+	resp := &ResponseExists{}
+	err := binary.Read(r, binary.LittleEndian, &resp.Status)
+	return resp, err
 }

@@ -46,13 +46,13 @@ func (c *CacheImpl) Set(key, value []byte, ttl time.Duration) error {
 	return nil
 }
 
-func (c *CacheImpl) Exists(key []byte) bool {
+func (c *CacheImpl) Exists(key []byte) (bool, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	_, ok := c.dataStore[string(key)]
 
-	return ok
+	return ok, nil
 }
 
 func (c *CacheImpl) Delete(key []byte) error {

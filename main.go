@@ -36,9 +36,9 @@ func main() {
 
 // client simulation function
 func SimulateClient() {
-	client, err := client.New("localhost:3000")
 	for i := 0; i < 10; i++ {
 		go func(i int) {
+			client, err := client.New("localhost:3000")
 			if err != nil {
 				log.Fatal("Error connecting to server: ", err)
 			}
@@ -65,8 +65,25 @@ func SimulateClient() {
 		}(i)
 	}
 
-	// Exists key
-	isExists, err := client.Exists(context.Background(), []byte("key_2"))
-	fmt.Printf("Is Key: %s exist? %s", []byte("key_2"), isExists)
+	go func() {
+		client, err := client.New("localhost:3000")
+		if err != nil {
+			log.Fatal("Error connecting to server: ", err)
+		}
+
+		// Exists key_2
+		isExists, err := client.Exists(context.Background(), []byte("key_2"))
+		if err != nil {
+			log.Fatal("Error is Exists(): ", err)
+		}
+
+		fmt.Printf("Is Key: %s exist? %v\n", []byte("key_2"), isExists)
+
+		// Exists key_100 => should return false
+		isExists, _ = client.Exists(context.Background(), []byte("key_100"))
+		fmt.Printf("Is Key: %s exist? %v\n", []byte("key_100"), isExists)
+
+		client.Close()
+	}()
 
 }
