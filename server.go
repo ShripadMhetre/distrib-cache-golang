@@ -30,6 +30,7 @@ func NewServer(ops ServerOptions, c cache.Cache) *Server {
 	return &Server{
 		ServerOptions: ops,
 		cache:         c,
+		clients:       make(map[*client.Client]struct{}),
 	}
 }
 

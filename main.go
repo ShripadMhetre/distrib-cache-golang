@@ -38,7 +38,7 @@ func main() {
 func SimulateClient() {
 	for i := 0; i < 10; i++ {
 		go func(i int) {
-			client, err := client.New("localhost:3000")
+			client, err := client.New("localhost:5000")
 			if err != nil {
 				log.Fatal("Error connecting to server: ", err)
 			}
@@ -66,7 +66,7 @@ func SimulateClient() {
 	}
 
 	go func() {
-		client, err := client.New("localhost:3000")
+		client, err := client.New("localhost:5000")
 		if err != nil {
 			log.Fatal("Error connecting to server: ", err)
 		}
